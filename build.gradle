@@ -25,8 +25,24 @@ repositories {
 	mavenCentral()
 }
 
+dependencyManagement {
+	imports {
+		mavenBom 'com.amazonaws:aws-java-sdk-bom:1.11.15'
+	}
+}
 
 dependencies {
 	compile('org.springframework.boot:spring-boot-starter')
+    compile("com.google.code.gson:gson:2.3.1")
+    compile("com.amazonaws:aws-java-sdk-s3")
 	testCompile('org.springframework.boot:spring-boot-starter-test')
+    testCompile('junit:junit:4.12')
+    testCompile('org.hamcrest:hamcrest-junit:2.0.0.0')
+    testCompile('org.hamcrest:java-hamcrest:2.0.0.0')
+}
+
+test {
+    beforeTest { descriptor ->
+        logger.lifecycle("Running test: ${descriptor}")
+    }
 }

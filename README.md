@@ -30,9 +30,9 @@ query the more expensive AI (As of Jan 2017, $0.40 - $1 USD depending on volume)
 
 ## Scanning Image Files
 
-A still image can be POSTed as a multipart file upload to the `/score` endpoint:
+A still image can be POSTed as a multipart file upload to the `/scanner/image` endpoint:
 
-    $ curl -F file=@samples/security_cam_path_person_close.jpg http://localhost:8080/score
+    $ curl -F file=@samples/security_cam_path_person_close.jpg http://localhost:8080/scanner/image
     [
       {"name":"People","confidence":98.551994},
       {"name":"Person","confidence":98.55204},

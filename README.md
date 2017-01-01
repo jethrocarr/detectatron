@@ -61,4 +61,28 @@ A standalone self-contained JAR executable can be built and run with:
     gradle bootRepackage
     LATEST=`find build -name '*.jar' | tail -n1`
     java -jar $LATEST
-    
+
+
+# Testing
+
+Detectatron aims for 80%+ code coverage with unit and integration tests. The tests can
+be executed with:
+
+    gradle test
+
+If the tests fail, you can obtain additional information with the `--info`
+parameter. This can show errors such as missing configuration causing faults
+with the test suite.
+
+    gradle test --info
+
+Note that the tests require access to a function AWS account as a number
+of the tests take place against AWS service endpoints.
+
+It is possible to bypass tests by adding `-x test` to your normal gradle
+commands, for example:
+
+    gradle bootRun -x test
+
+This of course is not recommended, but it can be useful if you need to separate
+the build task and the testing task (eg as part of a CI/CD workflow).

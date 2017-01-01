@@ -25,12 +25,12 @@ public class ScannerController {
 
 
     @RequestMapping(value = "/scanner", method = RequestMethod.GET)
-    public String scoreGet() {
+    public String scanner() {
         return "This endpoint must be invoked via POST with an image file\n";
     }
 
     @RequestMapping(value = "/scanner/image", method = RequestMethod.POST)
-    public static ResponseEntity<String> receiverPost(
+    public static ResponseEntity<String> scannerImage(
             @RequestParam("file") MultipartFile imageFile
         ) {
 

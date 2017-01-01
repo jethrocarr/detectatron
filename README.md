@@ -25,6 +25,11 @@ likely to take the form of a pipeline that involves some simple local in-app che
 query the more expensive AI (As of Jan 2017, $0.40 - $1 USD depending on volume).
 
 
+# Requirements
+
+The server running Detectatron needs to be properly configured with IAM credentials that can use the AWS Rekognition
+service. If running inside AWS EC2, the use of IAM roles is highly recommended rather than hard-coded credentials.
+
 
 # Usage
 
@@ -56,3 +61,4 @@ A standalone self-contained JAR executable can be built and run with:
     gradle bootRepackage
     LATEST=`find build -name '*.jar' | tail -n1`
     java -jar $LATEST
+    

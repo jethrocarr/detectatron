@@ -1,12 +1,12 @@
-package com.jethrocarr;
+package detectatron;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class DetectatronApplication {
+public class Application {
 
 	public static void main(String[] args) {
-		SpringApplication.run(DetectatronApplication.class, args);
+		SpringApplication.run(Application.class, args);
 	}
 }

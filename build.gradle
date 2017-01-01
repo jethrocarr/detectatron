@@ -27,14 +27,22 @@ repositories {
 
 dependencyManagement {
 	imports {
-		mavenBom 'com.amazonaws:aws-java-sdk-bom:1.11.15'
+		mavenBom 'com.amazonaws:aws-java-sdk-bom:1.11.75'
 	}
 }
 
 dependencies {
 	compile('org.springframework.boot:spring-boot-starter')
+	compile("org.springframework.boot:spring-boot-starter-web") {
+		exclude module: "spring-boot-starter-tomcat"
+	}
+    compile("org.springframework.boot:spring-boot-starter-jetty")
+    compile("org.springframework.boot:spring-boot-starter-actuator")
+
     compile("com.google.code.gson:gson:2.3.1")
     compile("com.amazonaws:aws-java-sdk-s3")
+    compile("com.amazonaws:aws-java-sdk-rekognition")
+
 	testCompile('org.springframework.boot:spring-boot-starter-test')
     testCompile('junit:junit:4.12')
     testCompile('org.hamcrest:hamcrest-junit:2.0.0.0')

@@ -23,6 +23,7 @@ nbbuild/
 dist/
 nbdist/
 .nb-gradle/
+out/
 
 # Sample media used with testing
 /samples

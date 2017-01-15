@@ -59,4 +59,32 @@ public class ScannerController {
 
     }
 
+    @RequestMapping(value = "/scanner/video", method = RequestMethod.POST)
+    public static ResponseEntity<String> scannerVideo(
+            @RequestParam("file") MultipartFile videoFile
+    ) {
+        logger.log(Level.INFO, "Received binary video for processing");
+
+
+        // Convert the image from MultiPart form to actual binary data (and make sure we actually got a damn image).
+        byte[] videoBinary;
+
+        try {
+            logger.log(Level.INFO, "Processing file: " + videoFile.getOriginalFilename());
+            videoBinary = videoFile.getBytes();
+        } catch (java.io.IOException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("A binary video must be POSTed to this endpoint.\n");
+        }
+
+        // Process result
+        try {
+            String results = VideoCategorisation.process(videoBinary);
+            return ResponseEntity.ok(results);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("A failure occurred when categorising the video");
+        }
+    }
+
 }

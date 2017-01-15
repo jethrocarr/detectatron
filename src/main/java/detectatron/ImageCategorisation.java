@@ -73,7 +73,7 @@ public class ImageCategorisation {
 
         } catch (AmazonRekognitionException e) {
             e.printStackTrace();
-            throw new ValidationException("An unexpected fault occured when interacting with AWS Rekognition");
+            throw new ValidationException("An unexpected fault occurred when interacting with AWS Rekognition");
         } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
             e.printStackTrace();
             throw new ValidationException("An unexpected fault occured with JSON processing");

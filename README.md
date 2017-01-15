@@ -47,6 +47,12 @@ A still image can be POSTed as a multipart file upload to the `/scanner/image` e
     ]
 
 
+## Scanning Video Files
+
+A video file can be POSTed as a multipart file upload to the `/scanner/video` endpoint:
+
+    $ curl -F file=@samples/video_front_humans_1.mp4 http://localhost:8080/scanner/video
+
 
 # Build & Execution
 

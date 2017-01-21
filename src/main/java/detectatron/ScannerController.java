@@ -12,8 +12,6 @@ import java.util.logging.Level;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.annotation.MultipartConfig;
-
 /**
  * Accepts an image via POST and returns a JSON object with scoring information.
  */
@@ -25,7 +23,8 @@ public class ScannerController {
     private static final Logger logger = Logger.getLogger("ScannerController");
 
     @Autowired
-    VideoCategorisation videoCategorisationService;
+    VideoTagService myVideoTagService;
+    ImageTagService myImageTagService;
 
 
     @RequestMapping(value = "/scanner", method = RequestMethod.GET)
@@ -34,7 +33,7 @@ public class ScannerController {
     }
 
     @RequestMapping(value = "/scanner/image", method = RequestMethod.POST)
-    public static ResponseEntity<String> scannerImage(
+    public ResponseEntity<String> scannerImage(
             @RequestParam("file") MultipartFile imageFile
         ) {
 
@@ -53,7 +52,7 @@ public class ScannerController {
 
         // Process result
         try {
-            String results = ImageCategorisation.process(imageBinary);
+            String results = myImageTagService.process(imageBinary);
             return ResponseEntity.ok(results);
 
         } catch (Exception e) {
@@ -82,7 +81,7 @@ public class ScannerController {
 
         // Process result
         try {
-            return ResponseEntity.ok(videoCategorisationService.process(videoBinary));
+            return ResponseEntity.ok(myVideoTagService.process(videoBinary));
 
         } catch (Exception e) {
             e.printStackTrace();

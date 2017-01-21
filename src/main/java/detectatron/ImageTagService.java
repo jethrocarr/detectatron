@@ -22,11 +22,16 @@ import java.util.logging.Logger;
  */
 @Service
 @EnableAsync
-public class ImageCategorisation {
+public class ImageTagService {
 
-    private static final Logger logger = Logger.getLogger("ImageCategorisation");
+    private static final Logger logger = Logger.getLogger("ImageTagService");
 
-    public static String process (
+    /**
+     * Process the supplied image.
+     * @param imageBinary
+     * @return
+     */
+    public String process (
             byte[] imageBinary
     ) {
 
@@ -96,7 +101,8 @@ public class ImageCategorisation {
 
     /**
      * Process the image in a background asynchronous thread. This is used by the video categorisation service
-     * in order to get the data for multiple frames quickly.
+     * in order to get the data for multiple frames quickly. Note that threading performance can be limited by the
+     * external services we use - for example, Rekognition has a max transactions per second limit.
      *
      * @param imageBinary
      * @return

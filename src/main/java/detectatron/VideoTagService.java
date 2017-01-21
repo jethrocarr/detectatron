@@ -5,15 +5,11 @@ import com.sun.tools.internal.ws.wsdl.framework.ValidationException;
 import org.bytedeco.javacpp.avutil;
 import org.bytedeco.javacv.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
@@ -22,7 +18,7 @@ import java.util.logging.Logger;
 
 
 /**
- * Takes a video and breaks it into stills, which are then processed by the ImageCategorisation library.
+ * Takes a video and breaks it into stills, which are then processed by the ImageTagService library.
  *
  * We make some lazy assumptions in this class. Since we're processing surveillance video we're not worried about
  * sub-second imagery, generally any event we care about will take more than 1 second - so we just grab a frame for
@@ -38,15 +34,15 @@ import java.util.logging.Logger;
 
 @Service
 
-public class VideoCategorisation {
-    private static final Logger logger = Logger.getLogger("VideoCategorisation");
+public class VideoTagService {
+    private static final Logger logger = Logger.getLogger("VideoTagService");
 
     @Autowired
-    private ImageCategorisation imageCategorisationService;
+    private ImageTagService myImageTagService;
 
 
     /**
-     * This function takes the full video binary (as byte array), extracts the frames and processes each one
+     * Take the full video binary (as byte array), extracts the frames and processes each one
      * for categorisation.
      *
      * @param videoBinary
@@ -112,9 +108,9 @@ public class VideoCategorisation {
 
                 // Pass the frame to the image categorisation async background pool
                 logger.log(Level.INFO, "Submitted frame for background processing...");
-                frameCategorisations.add(imageCategorisationService.processAsync(currentFrameBytes));
+                frameCategorisations.add(myImageTagService.processAsync(currentFrameBytes));
 
-                //String results = ImageCategorisation.process(currentFrameBytes);
+                //String results = ImageTagService.process(currentFrameBytes);
                 //logger.log(Level.INFO, "Results from image categorisation: " + results);
             }
 

@@ -4,11 +4,19 @@ package detectatron;
 import com.sun.tools.internal.ws.wsdl.framework.ValidationException;
 import org.bytedeco.javacpp.avutil;
 import org.bytedeco.javacv.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -21,17 +29,21 @@ import java.util.logging.Logger;
  * each second of footage and run those through the image categorisation class.
  *
  * TODO: some areas for improvement:
- *  - This performs like shit. The ImageCategorisation task is very slowly and it results in an extremely long
- *    processing time per video whilst we wait for the video to be categorised. Need to move to categorising each
- *    video in a parallel thread.
  *  - Add logic that compares before/after of frames and determine if there's actually enough change to justify
  *    categorising each independently or not. This could save significant compute/cost.
  *  - Add logic that can detect movement of categorised objects. Eg if a car has been detected, is that car moving
  *    in the frames (eg driving up a driveway).
  *
  */
+
+@Service
+
 public class VideoCategorisation {
     private static final Logger logger = Logger.getLogger("VideoCategorisation");
+
+    @Autowired
+    private ImageCategorisation imageCategorisationService;
+
 
     /**
      * This function takes the full video binary (as byte array), extracts the frames and processes each one
@@ -40,7 +52,7 @@ public class VideoCategorisation {
      * @param videoBinary
      * @return
      */
-    public static String process (
+    public String process (
             byte[] videoBinary
     ) {
         logger.log(Level.INFO, "Extracting frames from the supplied video file...");
@@ -74,9 +86,11 @@ public class VideoCategorisation {
             int videoFrameRate = (int) Math.floor( frameGrabber.getFrameRate() );
             logger.log(Level.INFO, "Frame rate: " + videoFrameRate + " frames/second");
 
+            // Create an array of futures to allow for background processing.
+            List<Future<String>> frameCategorisations = new ArrayList<Future<String>>();
 
             // Process one frame per second of video.
-            for (int i=0; i < (videoLengthFrames / videoFrameRate); i++) {
+            for (int i=1; i < (videoLengthFrames / videoFrameRate); i++) {
 
                 // We need to jump to specific frames based on the framerate to grab one for each second of the video.
                 int frameNumber = (i * videoFrameRate);
@@ -96,9 +110,25 @@ public class VideoCategorisation {
 
                 logger.log(Level.INFO, "Frame number " + frameNumber + " size is: "+ currentFrameBytes.length + " bytes.");
 
-                // Pass the frame to the image categorisation
-                String results = ImageCategorisation.process(currentFrameBytes);
-                logger.log(Level.INFO, "Results from image categorisation: " + results);
+                // Pass the frame to the image categorisation async background pool
+                logger.log(Level.INFO, "Submitted frame for background processing...");
+                frameCategorisations.add(imageCategorisationService.processAsync(currentFrameBytes));
+
+                //String results = ImageCategorisation.process(currentFrameBytes);
+                //logger.log(Level.INFO, "Results from image categorisation: " + results);
+            }
+
+            // Now we wait for all background workers to complete.
+            logger.log(Level.INFO, "All frames submitted, waiting for data to be returned....");
+            for (Future<String> frameResult : frameCategorisations) {
+
+                // Wait until this particular frame's processing has been completed.
+                while (!frameResult.isDone()) {
+                    Thread.sleep(1000);
+                }
+
+                // Results!
+                logger.log(Level.INFO, "Results from image categorisation: " + frameResult.get());
             }
 
         } catch (org.bytedeco.javacv.FrameGrabber.Exception e) {
@@ -107,6 +137,12 @@ public class VideoCategorisation {
         } catch (java.io.IOException e) {
             e.printStackTrace();
             throw new ValidationException("An unexpected fault occurred when transcoding frame to image.");
+        } catch (java.lang.InterruptedException e) {
+            e.printStackTrace();
+            throw new ValidationException("Process terminated before background workers completed.");
+        } catch (java.util.concurrent.ExecutionException e) {
+            e.printStackTrace();
+            throw new ValidationException("Something went really wrong with the background workers.");
         }
 
         return "placeholder";

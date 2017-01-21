@@ -1,5 +1,6 @@
 package detectatron;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,9 @@ import javax.servlet.annotation.MultipartConfig;
 public class ScannerController {
 
     private static final Logger logger = Logger.getLogger("ScannerController");
+
+    @Autowired
+    VideoCategorisation videoCategorisationService;
 
 
     @RequestMapping(value = "/scanner", method = RequestMethod.GET)
@@ -60,7 +64,7 @@ public class ScannerController {
     }
 
     @RequestMapping(value = "/scanner/video", method = RequestMethod.POST)
-    public static ResponseEntity<String> scannerVideo(
+    public ResponseEntity<String> scannerVideo(
             @RequestParam("file") MultipartFile videoFile
     ) {
         logger.log(Level.INFO, "Received binary video for processing");
@@ -78,8 +82,7 @@ public class ScannerController {
 
         // Process result
         try {
-            String results = VideoCategorisation.process(videoBinary);
-            return ResponseEntity.ok(results);
+            return ResponseEntity.ok(videoCategorisationService.process(videoBinary));
 
         } catch (Exception e) {
             e.printStackTrace();

@@ -7,14 +7,21 @@ import com.amazonaws.services.rekognition.model.DetectLabelsResult;
 import com.amazonaws.services.rekognition.model.Image;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.tools.internal.ws.wsdl.framework.ValidationException;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.stereotype.Service;
 
 import java.nio.ByteBuffer;
+import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  * Takes an image and performs categorisation tasks on it.
  */
+@Service
+@EnableAsync
 public class ImageCategorisation {
 
     private static final Logger logger = Logger.getLogger("ImageCategorisation");
@@ -64,9 +71,16 @@ public class ImageCategorisation {
         rekognitionClient.setSignerRegionOverride("us-east-1");
 
 
-        // Process result
+        // Send request to AWS. This command can take a while, so we time and report for future use.
+        // TODO: send duration metrics into stats/datadog
         try {
+
+            long startTime = System.currentTimeMillis();
             DetectLabelsResult result = rekognitionClient.detectLabels(request);
+            long stopTime = System.currentTimeMillis();
+            int elapsedTime = (int) (stopTime - startTime) / 1000;
+
+            logger.log(Level.INFO, "Request processed in: " + elapsedTime + " seconds.");
 
             ObjectMapper objectMapper = new ObjectMapper();
             return objectMapper.writeValueAsString(result.getLabels());
@@ -79,4 +93,22 @@ public class ImageCategorisation {
             throw new ValidationException("An unexpected fault occured with JSON processing");
         }
     }
+
+    /**
+     * Process the image in a background asynchronous thread. This is used by the video categorisation service
+     * in order to get the data for multiple frames quickly.
+     *
+     * @param imageBinary
+     * @return
+     */
+    @Async
+    public Future<String> processAsync(
+            byte[] imageBinary
+    )
+            throws InterruptedException
+    {
+        String results = process(imageBinary);
+        return new AsyncResult<>(results);
+    }
+
 }

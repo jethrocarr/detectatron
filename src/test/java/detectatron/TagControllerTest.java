@@ -29,7 +29,6 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Map;
-import java.util.Scanner;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -37,12 +36,12 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppC
 
 
 /**
- * Unit tests for the Scanner Controller.
+ * Unit tests for the tagTag Controller.
  */
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc
 @SpringBootTest
-public class ScannerControllerTest {
+public class TagControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -65,54 +64,54 @@ public class ScannerControllerTest {
 
 
     /**
-     * Test the simple endpoint for /scanner.
+     * Test the simple endpoint for /tag.
      *
      * @throws Exception
      */
     @Test
-    public void testScanner() throws Exception {
-        mockMvc.perform(get("/scanner"))
+    public void testIndex() throws Exception {
+        mockMvc.perform(get("/tag"))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(content().string("This endpoint must be invoked via POST with an image file\n"));
     }
 
     /**
-     * Test posting to the image scanner without any image data. As it's the client's fault, we expect a 400-series
+     * Test posting to the image tag without any image data. As it's the client's fault, we expect a 400-series
      * error.
      *
      * @throws Exception
      */
     @Test
-    public void testScannerImageInvalidRequest() throws Exception {
-        mockMvc.perform(fileUpload("/scanner/image"))
+    public void testTagImageInvalidRequest() throws Exception {
+        mockMvc.perform(fileUpload("/tag/image"))
                 .andExpect(status().is4xxClientError());
     }
 
 
     /**
-     * Test posting to the image scanner with an invalid file format (plain text)
+     * Test posting to the image tag with an invalid file format (plain text)
      *
      * @throws Exception
      */
     @Test
-    public void testScannerImageInvalidFormat() throws Exception {
+    public void testTagImageInvalidFormat() throws Exception {
         MockMultipartFile multipartFile = new MockMultipartFile("file", "test.txt", "text/plain", "Unit Testing".getBytes());
 
-        mockMvc.perform(fileUpload("/scanner/image").file(multipartFile))
+        mockMvc.perform(fileUpload("/tag/image").file(multipartFile))
                 .andExpect(status().is5xxServerError());
     }
 
 
     /**
-     * Test posting to the image scanner with the traditional image of Lena
+     * Test posting to the image tag with the traditional image of Lena
      *
      * @throws Exception
      */
     @Test
-    public void testScannerImageLena1() throws Exception {
+    public void testTagImageLena1() throws Exception {
         MockMultipartFile multipartFile = new MockMultipartFile("file", "lena1.png", "image/png", getResourceFile("images/lena1.png"));
 
-        mockMvc.perform(fileUpload("/scanner/image").file(multipartFile))
+        mockMvc.perform(fileUpload("/tag/image").file(multipartFile))
                 .andExpect(status().is2xxSuccessful());
     }
 

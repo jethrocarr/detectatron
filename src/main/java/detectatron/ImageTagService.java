@@ -1,10 +1,7 @@
 package detectatron;
 
 import com.amazonaws.services.rekognition.AmazonRekognitionClient;
-import com.amazonaws.services.rekognition.model.AmazonRekognitionException;
-import com.amazonaws.services.rekognition.model.DetectLabelsRequest;
-import com.amazonaws.services.rekognition.model.DetectLabelsResult;
-import com.amazonaws.services.rekognition.model.Image;
+import com.amazonaws.services.rekognition.model.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.tools.internal.ws.wsdl.framework.ValidationException;
 import org.springframework.scheduling.annotation.Async;
@@ -31,7 +28,7 @@ public class ImageTagService {
      * @param imageBinary
      * @return
      */
-    public String process (
+    public TagModel process (
             byte[] imageBinary
     ) {
 
@@ -41,7 +38,8 @@ public class ImageTagService {
         // will increase the price somewhat since then we'll be paying for an S3 transaction as well - so if it's under
         // 5 MB, we really should just post it up directly.
 
-        // TODO: We need to properly detect and be able to handle > 5MB images.
+        // TODO: We need to properly detect and be able to handle > 5MB images. Interestingly, Rekognition doesn't
+        // actually appear to enforce the 5MB upload limit currently...
 
         ByteBuffer imageByteBuffer = ByteBuffer.wrap(imageBinary);
         Image imageObject = new Image();
@@ -81,22 +79,25 @@ public class ImageTagService {
         try {
 
             long startTime = System.currentTimeMillis();
+
             DetectLabelsResult result = rekognitionClient.detectLabels(request);
+            TagModel imageTags = new TagModel(result.getLabels());
+
             long stopTime = System.currentTimeMillis();
             int elapsedTime = (int) (stopTime - startTime) / 1000;
 
             logger.log(Level.INFO, "Request processed in: " + elapsedTime + " seconds.");
+            logger.log(Level.INFO, "All tags: " + imageTags.allTags);
+            return imageTags;
 
-            ObjectMapper objectMapper = new ObjectMapper();
-            return objectMapper.writeValueAsString(result.getLabels());
-
+        } catch (InvalidImageFormatException e) {
+            e.printStackTrace();
+            throw e;
         } catch (AmazonRekognitionException e) {
             e.printStackTrace();
             throw new ValidationException("An unexpected fault occurred when interacting with AWS Rekognition");
-        } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
-            e.printStackTrace();
-            throw new ValidationException("An unexpected fault occured with JSON processing");
         }
+
     }
 
     /**
@@ -108,12 +109,12 @@ public class ImageTagService {
      * @return
      */
     @Async
-    public Future<String> processAsync(
+    public Future<TagModel> processAsync(
             byte[] imageBinary
     )
             throws InterruptedException
     {
-        String results = process(imageBinary);
+        TagModel results = process(imageBinary);
         return new AsyncResult<>(results);
     }
 

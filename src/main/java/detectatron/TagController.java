@@ -1,5 +1,7 @@
 package detectatron;
 
+import com.amazonaws.services.rekognition.model.InvalidImageFormatException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.http.HttpStatus;
@@ -18,22 +20,24 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @EnableAutoConfiguration
 
-public class ScannerController {
+public class TagController {
 
-    private static final Logger logger = Logger.getLogger("ScannerController");
+    private static final Logger logger = Logger.getLogger("TagController");
 
     @Autowired
     VideoTagService myVideoTagService;
+
+    @Autowired
     ImageTagService myImageTagService;
 
 
-    @RequestMapping(value = "/scanner", method = RequestMethod.GET)
-    public String scanner() {
+    @RequestMapping(value = "/tag", method = RequestMethod.GET)
+    public String tag() {
         return "This endpoint must be invoked via POST with an image file\n";
     }
 
-    @RequestMapping(value = "/scanner/image", method = RequestMethod.POST)
-    public ResponseEntity<String> scannerImage(
+    @RequestMapping(value = "/tag/image", method = RequestMethod.POST)
+    public ResponseEntity<String> tagImage(
             @RequestParam("file") MultipartFile imageFile
         ) {
 
@@ -52,8 +56,14 @@ public class ScannerController {
 
         // Process result
         try {
-            String results = myImageTagService.process(imageBinary);
-            return ResponseEntity.ok(results);
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            String tagsAsJSON = objectMapper.writeValueAsString(myImageTagService.process(imageBinary));
+
+            return ResponseEntity.ok(tagsAsJSON);
+
+        } catch (InvalidImageFormatException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("An invalid image format was supplied - use JPG or PNG only");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -62,8 +72,8 @@ public class ScannerController {
 
     }
 
-    @RequestMapping(value = "/scanner/video", method = RequestMethod.POST)
-    public ResponseEntity<String> scannerVideo(
+    @RequestMapping(value = "/tag/video", method = RequestMethod.POST)
+    public ResponseEntity<String> tagVideo(
             @RequestParam("file") MultipartFile videoFile
     ) {
         logger.log(Level.INFO, "Received binary video for processing");
@@ -81,7 +91,10 @@ public class ScannerController {
 
         // Process result
         try {
-            return ResponseEntity.ok(myVideoTagService.process(videoBinary));
+            ObjectMapper objectMapper = new ObjectMapper();
+            String tagsAsJSON = objectMapper.writeValueAsString(myVideoTagService.process(videoBinary));
+
+            return ResponseEntity.ok(tagsAsJSON);
 
         } catch (Exception e) {
             e.printStackTrace();

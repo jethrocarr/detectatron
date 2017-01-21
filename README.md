@@ -33,25 +33,63 @@ service. If running inside AWS EC2, the use of IAM roles is highly recommended r
 
 # Usage
 
-## Scanning Image Files
+## Tagging Image Files
 
-A still image can be POSTed as a multipart file upload to the `/scanner/image` endpoint:
+A still image can be POSTed as a multipart file upload to the `/tag/image` endpoint:
 
-    $ curl -F file=@samples/security_cam_path_person_close.jpg http://localhost:8080/scanner/image
-    [
-      {"name":"People","confidence":98.551994},
-      {"name":"Person","confidence":98.55204},
-      {"name":"Human","confidence":98.44648},
-      {"name":"Plant","confidence":96.440735},
-      {"name":"Potted Plant","confidence":96.440735}
-    ]
+    $ curl -F file=@samples/security_cam_hallway_cat_closeup.jpg http://localhost:8080/tag/image
+    {
+      "rawLabels": [
+        {
+          "name": "Animal",
+          "confidence": 83.152725
+        },
+        {
+          "name": "Cat",
+          "confidence": 83.152725
+        },
+        ......
+        {
+          "name": "Room",
+          "confidence": 57.65361
+        }
+      ],
+      "keyLabels": [
+        {
+          "name": "Cat",
+          "confidence": 83.152725
+        },
+        {
+          "name": "Pet",
+          "confidence": 83.152725
+        }
+      ],
+      "allTags": [
+        "Animal",
+        "Cat",
+        "Mammal",
+        "Manx",
+        "Pet",
+        "Canopy",
+        "Chair",
+        "Furniture",
+        "Apartment",
+        "Housing",
+        "Indoors",
+        "Room"
+      ],
+      "keyTags": [
+        "Cat",
+        "Pet"
+      ]
+    }
 
 
-## Scanning Video Files
+## Tagging Video Files
 
-A video file can be POSTed as a multipart file upload to the `/scanner/video` endpoint:
+A video file can be POSTed as a multipart file upload to the `/tag/video` endpoint:
 
-    $ curl -F file=@samples/video_front_humans_1.mp4 http://localhost:8080/scanner/video
+    $ curl -F file=@samples/video_front_humans_1.mp4 http://localhost:8080/tag/video
 
 
 # Build & Execution

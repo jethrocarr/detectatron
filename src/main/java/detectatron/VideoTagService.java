@@ -2,7 +2,7 @@ package detectatron;
 
 
 import com.amazonaws.services.rekognition.model.Label;
-import com.sun.tools.internal.ws.wsdl.framework.ValidationException;
+import javax.validation.ValidationException;
 import org.bytedeco.javacpp.avutil;
 import org.bytedeco.javacv.*;
 import org.springframework.beans.factory.annotation.Autowired;

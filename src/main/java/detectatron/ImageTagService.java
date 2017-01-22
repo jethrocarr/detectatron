@@ -3,12 +3,13 @@ package detectatron;
 import com.amazonaws.services.rekognition.AmazonRekognitionClient;
 import com.amazonaws.services.rekognition.model.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sun.tools.internal.ws.wsdl.framework.ValidationException;
+
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 
+import javax.validation.ValidationException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.Future;
 import java.util.logging.Level;

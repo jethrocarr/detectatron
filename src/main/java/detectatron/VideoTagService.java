@@ -86,6 +86,17 @@ public class VideoTagService {
             int videoFrameRate = (int) Math.floor( frameGrabber.getFrameRate() );
             logger.log(Level.INFO, "Frame rate: " + videoFrameRate + " frames/second");
 
+            // We process up to 30 seconds of footage at the rate of 1 frame per second. If we get a video that is
+            // longer than this, we should only pull a max of 30 frames, but expand how frequently we obtain them.
+            if (videoLengthSeconds >= 30) {
+                logger.log(Level.INFO, "Video submitted is longer than 30 seconds, skipping frames.");
+
+                // Basically we increase the frame rate to assume the video was 30 seconds long, which means we take
+                // samples across the entire duration of the video, but just not as frequently. This new framerate is
+                // then used when we loop through the video.
+                videoFrameRate = (videoLengthFrames / 30);
+            }
+
             // Create an array of futures to allow for background processing.
             List<Future<TagModel>> frameCategorisations = new ArrayList<Future<TagModel>>();
 

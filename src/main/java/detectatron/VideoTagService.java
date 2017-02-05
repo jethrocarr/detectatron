@@ -86,15 +86,15 @@ public class VideoTagService {
             int videoFrameRate = (int) Math.floor( frameGrabber.getFrameRate() );
             logger.log(Level.INFO, "Frame rate: " + videoFrameRate + " frames/second");
 
-            // We process up to 30 seconds of footage at the rate of 1 frame per second. If we get a video that is
-            // longer than this, we should only pull a max of 30 frames, but expand how frequently we obtain them.
-            if (videoLengthSeconds >= 30) {
-                logger.log(Level.INFO, "Video submitted is longer than 30 seconds, skipping frames.");
+            // We process up to 10 seconds of footage at the rate of 1 frame per second. If we get a video that is
+            // longer than this, we should only pull a max of 10 frames, but expand how frequently we obtain them.
+            if (videoLengthSeconds >= 10) {
+                logger.log(Level.INFO, "Video submitted is longer than 10 seconds, skipping frames.");
 
-                // Basically we increase the frame rate to assume the video was 30 seconds long, which means we take
+                // Basically we increase the frame rate to assume the video was 10 seconds long, which means we take
                 // samples across the entire duration of the video, but just not as frequently. This new framerate is
                 // then used when we loop through the video.
-                videoFrameRate = (videoLengthFrames / 30);
+                videoFrameRate = (videoLengthFrames / 10);
             }
 
             // Create an array of futures to allow for background processing.
@@ -122,15 +122,31 @@ public class VideoTagService {
 
                 logger.log(Level.INFO, "Frame number " + frameNumber + " size is: "+ currentFrameBytes.length + " bytes.");
 
+
+                /*
+                  Currently if we do async costs get extremely high since we're paying per frame and we end up
+                  processing frames that we simply don't need to process. For now, let's process synchronously and
+                  return on the first match of any keyTags.
+
+                  Note that the use of the spring frameworks means multiple videos will be processes async since each
+                  HTTP request takes place in a different thread.
+
                 // Pass the frame to the image categorisation async background pool
                 logger.log(Level.INFO, "Submitted frame for background processing...");
                 frameCategorisations.add(myImageTagService.processAsync(currentFrameBytes));
+                */
 
-                //String results = ImageTagService.process(currentFrameBytes);
-                //logger.log(Level.INFO, "Results from image categorisation: " + results);
+               videoTags.importLabels( myImageTagService.process(currentFrameBytes).rawLabels );
+
+               if (videoTags.keyTags.size() > 0) {
+                   logger.log(Level.INFO, "Exiting video processing early - keyTag found already.");
+                   return videoTags;
+               }
             }
 
 
+            /*
+             As per comment above re async cost.
 
             // Now we wait for all background workers to complete.
             logger.log(Level.INFO, "All frames submitted, waiting for data to be returned....");
@@ -145,6 +161,7 @@ public class VideoTagService {
                 TagModel frameTags = frameResult.get();
                 videoTags.importLabels(frameTags.rawLabels);
             }
+            */
 
         } catch (org.bytedeco.javacv.FrameGrabber.Exception e) {
             e.printStackTrace();
@@ -152,12 +169,14 @@ public class VideoTagService {
         } catch (java.io.IOException e) {
             e.printStackTrace();
             throw new ValidationException("An unexpected fault occurred when transcoding frame to image.");
+            /*
         } catch (java.lang.InterruptedException e) {
             e.printStackTrace();
             throw new ValidationException("Process terminated before background workers completed.");
         } catch (java.util.concurrent.ExecutionException e) {
             e.printStackTrace();
             throw new ValidationException("Something went really wrong with the background workers.");
+            */
         }
 
         return videoTags;

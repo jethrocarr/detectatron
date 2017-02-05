@@ -33,6 +33,22 @@ service. If running inside AWS EC2, the use of IAM roles is highly recommended r
 
 # Usage
 
+
+## Arming/Disarming
+
+Because of the high cost of image processing, this service has the ability to be armed/disarmed. When armed, the service
+performs image detection and scoring. When disarmed, the service will not perform image detection and scoring. This
+allows for easy integration with alarm systems.
+
+The default state after application startup is "armed". To change state:
+
+    curl http://localhost:8080/arming/
+    curl http://localhost:8080/arming/armed
+    curl http://localhost:8080/arming/disarmed
+
+State is not persisted across application restarts.
+
+
 ## Tagging Image Files
 
 A still image can be POSTed as a multipart file upload to the `/tag/image` endpoint:

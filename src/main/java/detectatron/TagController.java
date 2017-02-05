@@ -30,6 +30,10 @@ public class TagController {
     @Autowired
     ImageTagService myImageTagService;
 
+    @Autowired
+    ArmingService myArmingService;
+
+
 
     @RequestMapping(value = "/tag", method = RequestMethod.GET)
     public String tag() {
@@ -42,6 +46,11 @@ public class TagController {
         ) {
 
         logger.log(Level.INFO, "Received binary image for processing");
+
+        if (myArmingService.armed == false) {
+            logger.log(Level.INFO, "Discarding request, Detectatron is currently disarmed.");
+            return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body("Detectatron is disarmed, not accepting images for tagging");
+        }
 
         // Convert the image from MultiPart form to actual binary data (and make sure we actually got a damn image).
         byte[] imageBinary;
@@ -78,6 +87,10 @@ public class TagController {
     ) {
         logger.log(Level.INFO, "Received binary video for processing");
 
+        if (myArmingService.armed == false) {
+            logger.log(Level.INFO, "Discarding request, Detectatron is currently disarmed.");
+            return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body("Detectatron is disarmed, not accepting videos for tagging");
+        }
 
         // Convert the image from MultiPart form to actual binary data (and make sure we actually got a damn image).
         byte[] videoBinary;

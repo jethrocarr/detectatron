@@ -28,10 +28,19 @@ query the more expensive AI (As of Jan 2017, $0.40 - $1 USD depending on volume)
 # Requirements
 
 The server running Detectatron needs to be properly configured with IAM credentials that can use the AWS Rekognition
-service. If running inside AWS EC2, the use of IAM roles is highly recommended rather than hard-coded credentials.
+service and the desired S3 bucket. If running inside AWS EC2, the use of IAM roles is highly recommended rather than
+hard-coded credentials.
 
 
-# Usage
+
+# Usage with connector
+
+The main intention is that Detectatron will be run alongside a connector which can pull video content from the camera
+or video recording system and push it up. Detectatron can then store and score the video and return the data back to
+the connector to use if suitable.
+
+The following is the list of supported platforms and their associated connectors:
+* [Unifi Video](https://github.com/jethrocarr/detectatron-connector-unifi)
 
 
 ## Arming/Disarming
@@ -47,6 +56,21 @@ The default state after application startup is "armed". To change state:
     curl http://localhost:8080/arming/disarmed
 
 State is not persisted across application restarts.
+
+
+## Submit Event
+
+The event submission endpoint accepts a video file and stores in S3, as well as processing to look for interesting
+elements in the video. It's intended for use by connector applications, such as the Unifi Connector.
+
+    $ curl -F file=@samples/video_front_humans_1.mp4 http://localhost:8080/event
+
+
+
+# Power Usage
+
+Detectatron also provides API endpoints that expose additional information, these may be useful if writing your own
+integrations or doing development and testing.
 
 
 ## Tagging Image Files

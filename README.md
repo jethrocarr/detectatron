@@ -31,6 +31,39 @@ The server running Detectatron needs to be properly configured with IAM credenti
 service and the desired S3 bucket. If running inside AWS EC2, the use of IAM roles is highly recommended rather than
 hard-coded credentials.
 
+The following is an example suitable IAM policy that allows the use of Rekognition for label detection and grants the
+ability to write files to an S3 bucket.
+
+    {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Sid": "Stmt1486339503000",
+                "Effect": "Allow",
+                "Action": [
+                    "s3:PutObject"
+                ],
+                "Resource": [
+                    "arn:aws:s3:::YOUR_S3_BUCKET_HERE/*"
+                ]
+            }
+        ]
+    }
+    {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Sid": "Stmt1486349781000",
+                "Effect": "Allow",
+                "Action": [
+                    "rekognition:DetectLabels"
+                ],
+                "Resource": [
+                    "*"
+                ]
+            }
+        ]
+    }
 
 
 # Usage with connector

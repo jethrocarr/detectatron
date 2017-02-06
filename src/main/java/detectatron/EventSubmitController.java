@@ -102,7 +102,7 @@ public class EventSubmitController {
                 ObjectMetadata s3Meta = new ObjectMetadata();
                 s3Meta.setContentLength(videoBinary.length);
                 s3Meta.setContentType(videoFile.getContentType());
-                s3Meta.setHeader("keyTags", videoKeyTags); // include key tags on videos
+                s3Meta.setHeader("x-amz-meta-detectatron", videoKeyTags); // include key tags on videos
 
                 PutObjectRequest s3Request = new PutObjectRequest(s3Bucket, videoFile.getOriginalFilename(), videoBinaryStream, s3Meta);
                 s3Request.setStorageClass(StorageClass.StandardInfrequentAccess); // Save money - most of this stuff is store & forget.

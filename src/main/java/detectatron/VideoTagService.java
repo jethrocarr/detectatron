@@ -136,7 +136,12 @@ public class VideoTagService {
                 frameCategorisations.add(myImageTagService.processAsync(currentFrameBytes));
                 */
 
+                // Import the tags on this frame into the overall detected tags
                videoTags.importLabels( myImageTagService.process(currentFrameBytes).rawLabels );
+
+               // Retain a copy of the current frame.
+               videoTags.keyFrameData = currentFrameBytes;
+
 
                if (videoTags.keyTags.size() > 0) {
                    logger.log(Level.INFO, "Exiting video processing early - keyTag found already.");

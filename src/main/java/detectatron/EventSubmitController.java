@@ -30,9 +30,7 @@ import java.util.logging.Logger;
 public class EventSubmitController {
 
     private static final Logger logger = Logger.getLogger("EventSubmitController");
-    private static final String s3Bucket = System.getenv("S3_BUCKET"); // todo we should be using spring configuration?
 
-    private static AmazonS3 s3Client = new AmazonS3Client();
 
 
     @Autowired
@@ -40,6 +38,9 @@ public class EventSubmitController {
 
     @Autowired
     ArmingService myArmingService;
+
+    @Autowired
+    S3UploadService myS3UploadService;
 
 
     @RequestMapping(value = "/event", method = RequestMethod.POST)
@@ -91,31 +92,12 @@ public class EventSubmitController {
          * trust the original filename of the video, but as Detectatron is a backend service we don't need to worry
          * about the trust worthyness of the data and can trust the filenames to be unique and sensible.
          */
-        if (s3Bucket == null) {
-            logger.log(Level.WARNING, "No S3 bucket configured, video will not be retained post-processing.");
-        } else {
-            logger.log(Level.INFO, "Uploading video to S3 bucket ("+ s3Bucket +")...");
+        myS3UploadService.uploader(videoFile.getOriginalFilename(), videoBinary, videoKeyTags);
 
-            try {
-                InputStream videoBinaryStream = new ByteArrayInputStream(videoBinary);
+        // We should also upload the keyframe. This is the first frame that matched a key event, or the last processed
+        // frame in the video if nothing got matched.
+        myS3UploadService.uploader(videoFile.getOriginalFilename() + "_keyframe.jpg", videoTags.keyFrameData, "");
 
-                ObjectMetadata s3Meta = new ObjectMetadata();
-                s3Meta.setContentLength(videoBinary.length);
-                s3Meta.setContentType(videoFile.getContentType());
-                s3Meta.setHeader("x-amz-meta-detectatron", videoKeyTags); // include key tags on videos
-
-                PutObjectRequest s3Request = new PutObjectRequest(s3Bucket, videoFile.getOriginalFilename(), videoBinaryStream, s3Meta);
-                s3Request.setStorageClass(StorageClass.StandardInfrequentAccess); // Save money - most of this stuff is store & forget.
-
-                s3Client.putObject(s3Request);
-
-                logger.log(Level.INFO, "Upload completed (s3://"+ s3Bucket +"/"+ videoFile.getOriginalFilename() +")");
-
-            } catch (RuntimeException e) {
-                e.printStackTrace();
-                logger.log(Level.SEVERE, "An unexpected error occurred whilst uploading the video to S3");
-            }
-        }
 
 
         /**

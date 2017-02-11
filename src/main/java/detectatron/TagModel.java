@@ -15,6 +15,7 @@ public class TagModel {
     public List<Label> keyLabels = new ArrayList<Label>();
     public List<String> allTags = new ArrayList<String>();
     public List<String> keyTags = new ArrayList<String>();
+    public byte[] keyFrameData;
 
     /**
      * Instantiation with no data is acceptable.

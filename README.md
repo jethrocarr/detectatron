@@ -25,7 +25,7 @@ likely to take the form of a pipeline that involves some simple local in-app che
 query the more expensive AI (As of Jan 2017, $0.40 - $1 USD depending on volume).
 
 
-# Requirements
+# Requirements & Execution
 
 The server running Detectatron needs to be properly configured with IAM credentials that can use the AWS Rekognition
 service and the desired S3 bucket. If running inside AWS EC2, the use of IAM roles is highly recommended rather than
@@ -64,6 +64,20 @@ ability to write files to an S3 bucket.
             }
         ]
     }
+
+If you wish for all videos that get uploaded to also be retained in an S3 bucket
+you can also define an S3 bucket to store the files by setting the `S3_BUCKET`
+environmental to your desired location when starting the application.
+
+Eg:
+
+    export S3_BUCKET=YOUR_S3_BUCKET_HERE
+    java -jar -Xm512M JARFILE
+
+The exact memory allocation will vary based on what you send the service, a
+512MB heap seems to work nicely but less is possible.
+
+Java/JDK 8+ is required.
 
 
 # Usage with connector

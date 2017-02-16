@@ -225,6 +225,13 @@ This of course is not recommended, but it can be useful if you need to separate
 the build task and the testing task (eg as part of a CI/CD workflow).
 
 
+# Contributions
+
+All contributions are welcome via Pull Requests including documentation fixes,
+unit testing and better functionality. Note that new Java code should have
+associated unit tests in order to be accepted.
+
+
 # License
 
     Detectatron is licensed under the Apache License, Version 2.0 (the "License").

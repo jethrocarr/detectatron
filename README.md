@@ -110,6 +110,9 @@ The default state after application startup is "armed". To change state:
 
 State is not persisted across application restarts.
 
+If you're interested in open source alarm software, take a look at my other project
+["HowAlarming"](https://github.com/jethrocarr/howalarming).
+
 
 ## Submit Event
 

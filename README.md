@@ -12,17 +12,23 @@ native video capture services.
 
 # Features
 
-Detectatron is in development, planned functionality is:
+Detectatron is *still in development and is terrible code that needs a refactor
+and much more unit testing*.
 
-* Simple HTTP interface.
+That being said, it does have the following features:
+
+* A simple HTTP interface.
 * Ability to scan still images.
 * Ability to scan video, via means of extracting frames from video files.
 * Provide summary metrics - Human in video true/false? Useful for alarm systems or "events of note" type systems.
 * Provide detailed metrics - Useful for systems capable of using probability metrics from the backend AI.
+* Accept a video, perform processing and return JSON with HTTP status codes indicating nature of detected event.
+* Store video events in S3 for retention.
 
-The backend AI currently consists of Amazon Rekognition, however due to the high cost of per-image processing, it is
-likely to take the form of a pipeline that involves some simple local in-app checks/validations to reduce the need to
-query the more expensive AI (As of Jan 2017, $0.40 - $1 USD depending on volume).
+Currently the backend AI currently consists purely of Amazon Rekognition, however due to the high cost of per-image
+processing, it would be nice to extend to use JavaCV (OpenCV) to do some sort of a pipeline that involves some simple
+local in-app checks/validations to reduce the need to query the more expensive AWS service (As of Jan 2017,
+$0.40 - $1 USD depending on volume).
 
 
 # Requirements & Execution

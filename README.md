@@ -202,6 +202,10 @@ A standalone self-contained JAR executable can be built and run with:
     LATEST=`find build -name '*.jar' | tail -n1`
     java -jar $LATEST
 
+If you want to do automated deployment to your servers, I have created a
+[Puppet module](https://github.com/jethrocarr/puppet-detectatron) that builds
+and installs Detection and connectors on a server.
+
 
 # Testing
 

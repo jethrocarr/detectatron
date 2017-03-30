@@ -96,8 +96,9 @@ public class EventSubmitController {
 
         // We should also upload the keyframe. This is the first frame that matched a key event, or the last processed
         // frame in the video if nothing got matched.
-        myS3UploadService.uploader(videoFile.getOriginalFilename() + "_keyframe.jpg", videoTags.keyFrameData, "");
-
+        if (videoTags.keyFrameData != null) {
+            myS3UploadService.uploader(videoFile.getOriginalFilename() + "_keyframe.jpg", videoTags.keyFrameData, "");
+        }
 
 
         /**
